@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OK저축은행 회의자료 관리 시스템 - 관리자</title>
+  <style>
+    :root {
+      --ok-orange: #E93D1A;
+      --ok-dark-brown: #554744;
+      --ok-yellow: #F4A611;
+      --ok-bright-gray: #C5C5C5;
+      --ok-bg-gray: #F8F8F8;
+      --ok-text-dark: #2D2D2D;
+      --ok-border-light: #E8E8E8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background-color: var(--ok-bg-gray);
+      color: var(--ok-text-dark);
+      min-height: 100vh;
+    }
+
+    /* 헤더 */
+    .admin-header {
+      background: linear-gradient(135deg, var(--ok-dark-brown) 0%, #3D2F2C 100%);
+      color: white;
+      padding: 20px 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    .admin-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .ok-logo {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ok-logo-text {
+      font-size: 2rem;
+      font-weight: 900;
+      color: white;
+      letter-spacing: 1px;
+    }
+
+    .ok-logo-accent {
+      color: var(--ok-orange);
+      font-size: 2.2rem;
+    }
+
+    .header-title h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .btn-header {
+      background: var(--ok-orange);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-header:hover {
+      background: #ff4520;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    /* 메인 컨테이너 */
+    .admin-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    /* 대시보드 카드들 */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .dashboard-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      border: 1px solid var(--ok-border-light);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--ok-text-dark);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+    }
+
+    .card-number {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--ok-orange);
+      margin-bottom: 10px;
+    }
+
+    .card-description {
+      color: var(--ok-dark-brown);
+      font-size: 1rem;
+    }
+
+    /* 필터 섹션 */
+    .filter-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      border: 1px solid var(--ok-border-light);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      align-items: end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-group label {
+      font-weight: 600;
+      color: var(--ok-text-dark);
+      font-size: 0.95rem;
+    }
+
+    .filter-select {
+      padding: 12px 15px;
+      border: 2px solid var(--ok-border-light);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #fafafa;
+      color: var(--ok-text-dark);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--ok-orange);
+      background: white;
+    }
+
+    .btn-filter {
+      background: var(--ok-orange);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      height: fit-content;
+    }
+
+    .btn-filter:hover {
+      background: #ff4520;
+    }
+
+    /* 테이블 스타일 */
+    .table-container {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      border: 1px solid var(--ok-border-light);
+    }
+
+    .table-header {
+      background: var(--ok-dark-brown);
+      color: white;
+      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .table-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-table {
+      background: var(--ok-orange);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-table:hover {
+      background: #ff4520;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 15px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--ok-border-light);
+    }
+
+    .data-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: var(--ok-text-dark);
+      position: sticky;
+      top: 0;
+    }
+
+    .data-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-align: center;
+      min-width: 80px;
+      display: inline-block;
+    }
+
+    .status-completed {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    .status-not-started {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f1b0b7;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-action {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-view {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-view:hover {
+      background: #0056b3;
+    }
+
+    .btn-edit {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: #1e7e34;
+    }
+
+    .btn-delete {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: #c82333;
+    }
+
+    /* 모달 스타일 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--ok-border-light);
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--ok-text-dark);
+    }
+
+    .close {
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: var(--ok-orange);
+    }
+
+    .modal-body {
+      margin-bottom: 25px;
+    }
+
+    .modal-field {
+      margin-bottom: 20px;
+    }
+
+    .modal-field label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--ok-text-dark);
+    }
+
+    .modal-field textarea,
+    .modal-field input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid var(--ok-border-light);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .modal-field textarea {
+      min-height: 100px;
+    }
+
+    .modal-field textarea:focus,
+    .modal-field input:focus {
+      outline: none;
+      border-color: var(--ok-orange);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-modal {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: var(--ok-orange);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #ff4520;
+    }
+
+    .btn-cancel {
+      background: var(--ok-bright-gray);
+      color: var(--ok-text-dark);
+    }
+
+    .btn-cancel:hover {
+      background: #a8a8a8;
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+      .admin-container {
+        padding: 20px;
+      }
+
+      .header-content {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .data-table {
+        font-size: 0.85rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 10px 12px;
+      }
+    }
+
+    /* 로딩 스피너 */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 50px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--ok-orange);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 빈 상태 */
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--ok-bright-gray);
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .empty-state h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: var(--ok-text-dark);
+    }
+
+         .empty-state p {
+       font-size: 1rem;
+     }
+
+     /* 취합 페이지 스타일 */
+     .summary-content {
+       padding: 30px;
+     }
+
+     .summary-header {
+       text-align: center;
+       margin-bottom: 40px;
+       border-bottom: 3px solid var(--ok-orange);
+       padding-bottom: 20px;
+     }
+
+     .summary-header h2 {
+       font-size: 2rem;
+       color: var(--ok-text-dark);
+       margin-bottom: 10px;
+       font-weight: 700;
+     }
+
+     .summary-header p {
+       color: var(--ok-dark-brown);
+       font-size: 1.1rem;
+     }
+
+     .department-summary {
+       margin-bottom: 40px;
+       border: 2px solid var(--ok-border-light);
+       border-radius: 12px;
+       overflow: hidden;
+     }
+
+     .department-summary-header {
+       background: var(--ok-dark-brown);
+       color: white;
+       padding: 15px 25px;
+       font-weight: 700;
+       font-size: 1.2rem;
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+     }
+
+     .department-summary-content {
+       padding: 25px;
+     }
+
+     .summary-field {
+       margin-bottom: 25px;
+     }
+
+     .summary-field-title {
+       font-weight: 700;
+       color: var(--ok-dark-brown);
+       font-size: 1.1rem;
+       margin-bottom: 10px;
+       border-left: 4px solid var(--ok-orange);
+       padding-left: 12px;
+     }
+
+     .summary-field-content {
+       background: #f8f9fa;
+       padding: 15px 20px;
+       border-radius: 8px;
+       border: 1px solid var(--ok-border-light);
+       min-height: 60px;
+       line-height: 1.6;
+       white-space: pre-wrap;
+     }
+
+     .summary-field-content.empty {
+       color: #999;
+       font-style: italic;
+     }
+
+     .department-status {
+       padding: 8px 15px;
+       border-radius: 20px;
+       font-size: 0.9rem;
+       font-weight: 600;
+     }
+
+     .summary-actions {
+       margin-top: 30px;
+       text-align: center;
+     }
+
+     .btn-summary {
+       background: var(--ok-orange);
+       color: white;
+       border: none;
+       padding: 12px 25px;
+       border-radius: 8px;
+       cursor: pointer;
+       font-size: 1rem;
+       font-weight: 600;
+       margin: 0 10px;
+       transition: all 0.3s ease;
+     }
+
+     .btn-summary:hover {
+       background: #ff4520;
+       transform: translateY(-2px);
+     }
+
+     @media print {
+       .table-header, .summary-actions, .btn-summary {
+         display: none !important;
+       }
+       
+       .summary-header .summary-actions {
+         display: none !important;
+       }
+       
+       .summary-content {
+         padding: 0;
+       }
+       
+       .department-summary {
+         break-inside: avoid;
+         margin-bottom: 30px;
+       }
+     }
+  </style>
+</head>
+<body>
+  <!-- 헤더 -->
+  <div class="admin-header">
+    <div class="header-content">
+             <div class="header-title">
+                 <div class="ok-logo">
+          <svg width="140" height="50" viewBox="0 0 140 50" style="height: 40px; width: auto;">
+            <defs>
+              <linearGradient id="bgGradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#554744;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#3d3330;stop-opacity:1" />
+              </linearGradient>
+              <linearGradient id="orangeGradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#E93D1A;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#d32f0f;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect width="140" height="50" rx="12" fill="url(#bgGradient4)"/>
+            <rect x="0" y="0" width="8" height="50" rx="12" fill="url(#orangeGradient4)"/>
+            <text x="18" y="34" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="#2a2a2a" opacity="0.3">OK</text>
+            <text x="16" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="white">OK</text>
+            <text x="52" y="34" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#2a2a2a" opacity="0.3">!</text>
+            <text x="50" y="32" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#E93D1A">!</text>
+            <text x="70" y="22" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="white">저축은행</text>
+            <text x="70" y="36" font-family="Arial, sans-serif" font-size="9" font-weight="500" fill="#F4A611">SAVINGS BANK</text>
+            <circle cx="125" cy="15" r="4" fill="#E93D1A" opacity="0.8"/>
+            <circle cx="130" cy="25" r="2.5" fill="#F4A611" opacity="0.9"/>
+            <circle cx="120" cy="35" r="2" fill="#E93D1A" opacity="0.6"/>
+          </svg>
+        </div>
+         <h1>관리자 대시보드</h1>
+       </div>
+      <div class="header-actions">
+        <a href="index.html" class="btn-header btn-secondary">
+          <span>📋</span>
+          <span>회의자료 입력</span>
+        </a>
+        <button class="btn-header" onclick="exportData()">
+          <span>📊</span>
+          <span>데이터 내보내기</span>
+        </button>
+        <button class="btn-header" onclick="refreshData()">
+          <span>🔄</span>
+          <span>새로고침</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메인 컨테이너 -->
+  <div class="admin-container">
+    <!-- 대시보드 통계 -->
+    <div class="dashboard-grid">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-title">전체 회의</div>
+          <div class="card-icon">📅</div>
+        </div>
+        <div class="card-number" id="totalMeetings">0</div>
+        <div class="card-description">2025년 8월~12월</div>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-title">작성완료</div>
+          <div class="card-icon">✅</div>
+        </div>
+        <div class="card-number" id="completedTasks">0</div>
+        <div class="card-description">부서별 작성완료 건수</div>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-title">작성중</div>
+          <div class="card-icon">📝</div>
+        </div>
+        <div class="card-number" id="pendingTasks">0</div>
+        <div class="card-description">작성 진행중인 건수</div>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-title">미작성</div>
+          <div class="card-icon">⏳</div>
+        </div>
+        <div class="card-number" id="notStartedTasks">0</div>
+        <div class="card-description">아직 시작하지 않은 건수</div>
+      </div>
+    </div>
+
+    <!-- 회의 선택 섹션 -->
+    <div class="filter-section">
+      <h3 style="margin-bottom: 20px; color: var(--ok-text-dark); font-size: 1.2rem;">회의 선택</h3>
+      <div class="filter-grid">
+        <div class="filter-group">
+          <label for="filterYear">연도</label>
+          <select id="filterYear" class="filter-select">
+            <option value="">연도 선택</option>
+            <option value="2025">2025년</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filterMonth">월</label>
+          <select id="filterMonth" class="filter-select">
+            <option value="">월 선택</option>
+            <option value="08">8월</option>
+            <option value="09">9월</option>
+            <option value="10">10월</option>
+            <option value="11">11월</option>
+            <option value="12">12월</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filterType">회의 구분</label>
+          <select id="filterType" class="filter-select">
+            <option value="">회의 구분 선택</option>
+            <option value="monthly">월간간담회</option>
+            <option value="week1">1주차 주간간담회</option>
+            <option value="week2">2주차 주간간담회</option>
+            <option value="week3">3주차 주간간담회</option>
+            <option value="week4">4주차 주간간담회</option>
+            <option value="week5">5주차 주간간담회</option>
+          </select>
+        </div>
+
+        <button class="btn-filter" onclick="searchMeeting()" id="searchBtn" disabled>확인</button>
+      </div>
+    </div>
+
+    <!-- 데이터 테이블 -->
+    <div class="table-container">
+      <div class="table-header">
+        <div class="table-title">회의자료 작성 현황</div>
+               <div class="table-actions">
+         <button class="btn-table" onclick="exportCurrentData()">현재 데이터 내보내기</button>
+         <button class="btn-table btn-danger" onclick="clearCurrentData()">현재 회의 데이터 삭제</button>
+       </div>
+      </div>
+      
+      <div id="tableContent">
+        <div class="loading" id="loadingSpinner">
+          <div class="spinner"></div>
+          <p>데이터를 불러오는 중...</p>
+        </div>
+        
+                 <div class="empty-state" id="emptyState">
+           <i>📊</i>
+           <h3>회의를 선택해주세요</h3>
+           <p>위에서 연도, 월, 회의 구분을 선택한 후 확인 버튼을 눌러주세요.</p>
+         </div>
+        
+                 <table class="data-table" id="dataTable" style="display: none;">
+           <thead>
+             <tr>
+               <th>회의명</th>
+               <th>부서</th>
+               <th>상태</th>
+               <th>마지막 수정</th>
+               <th>액션</th>
+             </tr>
+           </thead>
+           <tbody id="dataTableBody">
+           </tbody>
+         </table>
+             </div>
+     </div>
+
+     <!-- 회의자료 취합 섹션 -->
+     <div class="table-container" id="summaryContainer" style="display: none;">
+       <div class="table-header">
+         <div class="table-title">회의자료 취합</div>
+         <div class="table-actions">
+           <button class="btn-table" onclick="exportSummaryData()">취합 데이터 내보내기</button>
+           <button class="btn-table" onclick="printSummaryData()">인쇄하기</button>
+         </div>
+       </div>
+       
+       <div class="summary-content" id="summaryContent">
+         <!-- 동적으로 생성될 취합 내용 -->
+       </div>
+     </div>
+   </div>
+
+   <!-- 상세 보기 모달 -->
+  <div id="detailModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">상세 정보</h2>
+        <span class="close" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- 동적으로 생성될 내용 -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-cancel" onclick="closeModal()">닫기</button>
+        <button class="btn-modal btn-primary" onclick="saveModalData()" id="saveModalBtn">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 16개 부서 목록
+    const departments = [
+      '영업추진부', '리테일기획부', '모기지사업부', '심사부', 
+      '리스크관리부', '경영관리본부(경영기획부)', '경영관리본부(IT기획부)', '미래디지털부',
+      '소비자금융영업부', '소비자금융기획부', '신용관리부', '마케팅팀',
+      '감사부', '준법지원부', '금융소비자보호부', '정보보안팀'
+    ];
+
+         // 전역 변수
+     let meetingData = {};
+     let currentMeetingData = [];
+     let currentEditData = null;
+     let selectedMeeting = null;
+
+     // 페이지 로드 시 초기화
+     document.addEventListener('DOMContentLoaded', function() {
+       loadData();
+       updateDashboard();
+       setupEventListeners();
+       showInitialState();
+     });
+
+         // 데이터 로드
+     function loadData() {
+       meetingData = JSON.parse(localStorage.getItem('meetingData')) || {};
+     }
+
+     // 이벤트 리스너 설정
+     function setupEventListeners() {
+       document.getElementById('filterYear').addEventListener('change', checkSearchValid);
+       document.getElementById('filterMonth').addEventListener('change', checkSearchValid);
+       document.getElementById('filterType').addEventListener('change', checkSearchValid);
+     }
+
+     // 검색 버튼 활성화 체크
+     function checkSearchValid() {
+       const year = document.getElementById('filterYear').value;
+       const month = document.getElementById('filterMonth').value;
+       const type = document.getElementById('filterType').value;
+       
+       const searchBtn = document.getElementById('searchBtn');
+       if (year && month && type) {
+         searchBtn.disabled = false;
+       } else {
+         searchBtn.disabled = true;
+       }
+     }
+
+     // 초기 상태 표시
+     function showInitialState() {
+       const loadingSpinner = document.getElementById('loadingSpinner');
+       const emptyState = document.getElementById('emptyState');
+       const dataTable = document.getElementById('dataTable');
+       
+       loadingSpinner.style.display = 'none';
+       emptyState.style.display = 'block';
+       dataTable.style.display = 'none';
+     }
+
+         // 회의 검색
+     function searchMeeting() {
+       const year = document.getElementById('filterYear').value;
+       const month = document.getElementById('filterMonth').value;
+       const type = document.getElementById('filterType').value;
+       
+       if (!year || !month || !type) {
+         alert('모든 항목을 선택해주세요.');
+         return;
+       }
+       
+       const meetingId = `${year}-${month}-${type}`;
+       const meetingName = getMeetingName(month, type);
+       
+       selectedMeeting = {
+         id: meetingId,
+         name: meetingName,
+         year,
+         month,
+         type
+       };
+       
+       // 해당 회의의 부서별 데이터 준비
+       currentMeetingData = [];
+       departments.forEach(dept => {
+         const deptData = meetingData[meetingId] ? meetingData[meetingId][dept] : null;
+         const status = getDepartmentStatus(deptData);
+         const progress = getDepartmentProgress(deptData, type);
+         const lastModified = getLastModified(deptData);
+         
+         currentMeetingData.push({
+           meetingId,
+           meetingName,
+           department: dept,
+           status,
+           progress,
+           lastModified,
+           data: deptData
+         });
+       });
+               
+        updateDashboard();
+        renderTable();
+        
+        // 회의자료 취합 버튼 표시
+        showSummaryButton();
+      }
+
+      // 회의자료 취합 버튼 표시
+      function showSummaryButton() {
+        if (selectedMeeting) {
+          const tableContainer = document.querySelector('.table-container .table-header .table-actions');
+          if (!document.getElementById('summaryBtn')) {
+            const summaryBtn = document.createElement('button');
+            summaryBtn.id = 'summaryBtn';
+            summaryBtn.className = 'btn-table';
+            summaryBtn.textContent = '회의자료 취합보기';
+            summaryBtn.onclick = showSummaryPage;
+            tableContainer.insertBefore(summaryBtn, tableContainer.firstChild);
+          }
+        }
+      }
+
+      // 회의명 생성
+    function getMeetingName(month, type) {
+      const monthName = parseInt(month) + '월';
+      if (type === 'monthly') {
+        return `2025년 ${monthName} 월간간담회`;
+      } else {
+        const weekNum = type.replace('week', '');
+        return `2025년 ${monthName} ${weekNum}주차 주간간담회`;
+      }
+    }
+
+    // 부서 상태 확인
+    function getDepartmentStatus(deptData) {
+      if (!deptData) return 'not-started';
+      if (deptData.completed) return 'completed';
+      
+      const hasContent = Object.keys(deptData).some(key => 
+        key !== 'completed' && deptData[key] && deptData[key].toString().trim() !== ''
+      );
+      
+      return hasContent ? 'pending' : 'not-started';
+    }
+
+         // 진행률 계산 (사용하지 않음)
+     function getDepartmentProgress(deptData, meetingType) {
+       return 0; // 진행률 기능 제거
+     }
+
+         // 마지막 수정일 확인
+     function getLastModified(deptData) {
+       if (!deptData || !deptData.lastModified) return '-';
+       const date = new Date(deptData.lastModified);
+       return date.toLocaleDateString('ko-KR') + ' ' + date.toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'});
+     }
+
+         // 대시보드 업데이트
+     function updateDashboard() {
+       const stats = calculateStats();
+       
+       document.getElementById('totalMeetings').textContent = stats.totalDepartments;
+       document.getElementById('completedTasks').textContent = stats.completed;
+       document.getElementById('pendingTasks').textContent = stats.pending;
+       document.getElementById('notStartedTasks').textContent = stats.notStarted;
+       
+       // 대시보드 카드 제목 업데이트
+       const firstCard = document.querySelector('.dashboard-card .card-title');
+       if (selectedMeeting) {
+         firstCard.textContent = '전체 부서';
+         document.querySelector('.card-description').textContent = selectedMeeting.name;
+       } else {
+         firstCard.textContent = '전체 부서';
+         document.querySelector('.card-description').textContent = '회의를 선택해주세요';
+       }
+     }
+
+         // 통계 계산
+     function calculateStats() {
+       if (!selectedMeeting) {
+         return { totalDepartments: 16, completed: 0, pending: 0, notStarted: 0 };
+       }
+       
+       const totalDepartments = departments.length;
+       let completed = 0;
+       let pending = 0;
+       let notStarted = 0;
+       
+       currentMeetingData.forEach(item => {
+         switch(item.status) {
+           case 'completed': completed++; break;
+           case 'pending': pending++; break;
+           case 'not-started': notStarted++; break;
+         }
+       });
+       
+       return { totalDepartments, completed, pending, notStarted };
+     }
+
+         // 테이블 렌더링
+     function renderTable() {
+       const tableBody = document.getElementById('dataTableBody');
+       const loadingSpinner = document.getElementById('loadingSpinner');
+       const emptyState = document.getElementById('emptyState');
+       const dataTable = document.getElementById('dataTable');
+       
+       if (!selectedMeeting) {
+         loadingSpinner.style.display = 'none';
+         emptyState.style.display = 'block';
+         dataTable.style.display = 'none';
+         return;
+       }
+       
+       // 로딩 표시
+       loadingSpinner.style.display = 'block';
+       emptyState.style.display = 'none';
+       dataTable.style.display = 'none';
+       
+       setTimeout(() => {
+         if (currentMeetingData.length === 0) {
+           loadingSpinner.style.display = 'none';
+           emptyState.style.display = 'block';
+           emptyState.innerHTML = '<i>📊</i><h3>데이터가 없습니다</h3><p>선택한 회의의 데이터가 없습니다.</p>';
+           return;
+         }
+         
+         tableBody.innerHTML = '';
+         currentMeetingData.forEach(item => {
+           const row = createTableRow(item);
+           tableBody.appendChild(row);
+         });
+         
+         loadingSpinner.style.display = 'none';
+         dataTable.style.display = 'table';
+       }, 500);
+     }
+
+    // 테이블 행 생성
+    function createTableRow(item) {
+      const row = document.createElement('tr');
+      
+      const statusText = {
+        'completed': '작성완료',
+        'pending': '작성중',
+        'not-started': '미작성'
+      };
+      
+      const statusClass = {
+        'completed': 'status-completed',
+        'pending': 'status-pending',
+        'not-started': 'status-not-started'
+      };
+      
+             row.innerHTML = `
+         <td>${item.meetingName}</td>
+         <td>${item.department}</td>
+         <td><span class="status-badge ${statusClass[item.status]}">${statusText[item.status]}</span></td>
+         <td>${item.lastModified}</td>
+         <td>
+           <div class="action-buttons">
+             <button class="btn-action btn-view" onclick="viewDetail('${item.meetingId}', '${item.department}')">보기</button>
+             <button class="btn-action btn-edit" onclick="editDetail('${item.meetingId}', '${item.department}')">수정</button>
+             <button class="btn-action btn-delete" onclick="deleteDetail('${item.meetingId}', '${item.department}')">삭제</button>
+           </div>
+         </td>
+       `;
+      
+      return row;
+    }
+
+    // 필터 적용
+    function applyFilters() {
+      const year = document.getElementById('filterYear').value;
+      const month = document.getElementById('filterMonth').value;
+      const type = document.getElementById('filterType').value;
+      const status = document.getElementById('filterStatus').value;
+      
+      filteredData = prepareTableData().filter(item => {
+        if (year && !item.meetingId.startsWith(year)) return false;
+        if (month && !item.meetingId.includes(`-${month}-`)) return false;
+        if (type && !item.meetingId.endsWith(`-${type}`)) return false;
+        if (status && item.status !== status) return false;
+        return true;
+      });
+      
+      updateDashboard();
+      renderTable();
+    }
+
+    // 상세 보기
+    function viewDetail(meetingId, department) {
+      const data = meetingData[meetingId] ? meetingData[meetingId][department] : null;
+      const meetingName = getMeetingName(meetingId.split('-')[1], meetingId.split('-')[2]);
+      
+      showModal(`${meetingName} - ${department}`, data, false);
+    }
+
+    // 수정
+    function editDetail(meetingId, department) {
+      const data = meetingData[meetingId] ? meetingData[meetingId][department] : null;
+      const meetingName = getMeetingName(meetingId.split('-')[1], meetingId.split('-')[2]);
+      
+      currentEditData = { meetingId, department };
+      showModal(`${meetingName} - ${department} 수정`, data, true);
+    }
+
+    // 삭제
+    function deleteDetail(meetingId, department) {
+      if (!confirm(`${department}의 데이터를 삭제하시겠습니까?`)) return;
+      
+      if (meetingData[meetingId] && meetingData[meetingId][department]) {
+        delete meetingData[meetingId][department];
+        if (Object.keys(meetingData[meetingId]).length === 0) {
+          delete meetingData[meetingId];
+        }
+        localStorage.setItem('meetingData', JSON.stringify(meetingData));
+      }
+      
+      loadData();
+      updateDashboard();
+      renderTable();
+      
+      alert('데이터가 삭제되었습니다.');
+    }
+
+    // 모달 표시
+    function showModal(title, data, isEdit) {
+      const modal = document.getElementById('detailModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+      const saveBtn = document.getElementById('saveModalBtn');
+      
+      modalTitle.textContent = title;
+      saveBtn.style.display = isEdit ? 'block' : 'none';
+      
+      // 모달 내용 생성
+      let content = '';
+      if (data) {
+        const meetingType = currentEditData ? currentEditData.meetingId.split('-')[2] : 'monthly';
+        
+                 const previousLabel = meetingType === 'monthly' ? '전월 추진 실적' : '전주 추진 실적';
+         const currentLabel = meetingType === 'monthly' ? '금월 추진 계획' : '금주 추진 계획';
+         
+         content = `
+           <div class="modal-field">
+             <label>${previousLabel}</label>
+             <textarea ${isEdit ? '' : 'readonly'}>${data.previousResults || ''}</textarea>
+           </div>
+           <div class="modal-field">
+             <label>${currentLabel}</label>
+             <textarea ${isEdit ? '' : 'readonly'}>${data.currentPlan || ''}</textarea>
+           </div>
+         `;
+        
+        if (data.completed) {
+          content += `<div class="modal-field"><strong>상태: 작성완료</strong></div>`;
+        }
+      } else {
+        content = '<p>작성된 데이터가 없습니다.</p>';
+      }
+      
+      modalBody.innerHTML = content;
+      modal.style.display = 'block';
+    }
+
+    // 모달 닫기
+    function closeModal() {
+      document.getElementById('detailModal').style.display = 'none';
+      currentEditData = null;
+    }
+
+    // 모달 데이터 저장
+    function saveModalData() {
+      if (!currentEditData) return;
+      
+      const { meetingId, department } = currentEditData;
+      const modalInputs = document.querySelectorAll('#modalBody textarea, #modalBody input');
+      
+      if (!meetingData[meetingId]) meetingData[meetingId] = {};
+      if (!meetingData[meetingId][department]) meetingData[meetingId][department] = {};
+      
+             const fields = ['previousResults', 'currentPlan'];
+       modalInputs.forEach((input, index) => {
+         if (fields[index]) {
+           meetingData[meetingId][department][fields[index]] = input.value;
+         }
+       });
+      
+      meetingData[meetingId][department].lastModified = new Date().toISOString();
+      localStorage.setItem('meetingData', JSON.stringify(meetingData));
+      
+      closeModal();
+      loadData();
+      updateDashboard();
+      renderTable();
+      
+      alert('데이터가 저장되었습니다.');
+    }
+
+    // 데이터 새로고침
+    function refreshData() {
+      loadData();
+      updateDashboard();
+      renderTable();
+      alert('데이터가 새로고침되었습니다.');
+    }
+
+    // 데이터 내보내기
+    function exportData() {
+      const dataStr = JSON.stringify(meetingData, null, 2);
+      const dataBlob = new Blob([dataStr], {type: 'application/json'});
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `회의자료_전체데이터_${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // 필터된 데이터 내보내기
+    function exportFilteredData() {
+      if (filteredData.length === 0) {
+        alert('내보낼 데이터가 없습니다.');
+        return;
+      }
+      
+      const csvContent = generateCSV(filteredData);
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `회의자료_필터데이터_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+           // CSV 생성
+       function generateCSV(data) {
+         const headers = ['회의명', '부서', '상태', '마지막수정'];
+         const rows = data.map(item => [
+           item.meetingName,
+           item.department,
+           item.status === 'completed' ? '작성완료' : item.status === 'pending' ? '작성중' : '미작성',
+           item.lastModified
+         ]);
+         
+         const csvContent = [headers, ...rows]
+           .map(row => row.map(field => `"${field}"`).join(','))
+           .join('\n');
+           
+         return '\uFEFF' + csvContent; // BOM 추가 (한글 깨짐 방지)
+       }
+
+    // 전체 데이터 삭제
+    function clearAllData() {
+      if (!confirm('전체 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+      
+      if (confirm('정말로 모든 회의자료 데이터를 삭제하시겠습니까?')) {
+        localStorage.removeItem('meetingData');
+        meetingData = {};
+        loadData();
+        updateDashboard();
+        renderTable();
+               alert('전체 데이터가 삭제되었습니다.');
+       }
+     }
+
+     // 회의자료 취합 페이지 표시
+     function showSummaryPage() {
+       if (!selectedMeeting) {
+         alert('회의를 먼저 선택해주세요.');
+         return;
+       }
+       
+       const tableContainer = document.querySelector('.table-container');
+       const summaryContainer = document.getElementById('summaryContainer');
+       
+       tableContainer.style.display = 'none';
+       summaryContainer.style.display = 'block';
+       
+       generateSummaryContent();
+     }
+
+     // 취합 내용 생성
+     function generateSummaryContent() {
+       const summaryContent = document.getElementById('summaryContent');
+       const meetingType = selectedMeeting.type === 'monthly' ? '월간' : '주간';
+       const typeText = selectedMeeting.type === 'monthly' ? '' : ` ${selectedMeeting.type.replace('week', '')}주차`;
+       
+       let html = `
+         <div class="summary-header">
+           <h2>${selectedMeeting.name}</h2>
+           <p>OK저축은행 ${meetingType}간담회${typeText} - 전 부서 회의자료 취합</p>
+           <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+             작성일: ${new Date().toLocaleDateString('ko-KR')} ${new Date().toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
+           </p>
+           <div class="summary-actions" style="margin-top: 25px;">
+             <button class="btn-summary" onclick="backToTable()">목록으로 돌아가기</button>
+             <button class="btn-summary" onclick="exportSummaryData()">PDF로 내보내기</button>
+             <button class="btn-summary" onclick="printSummaryData()">인쇄하기</button>
+           </div>
+         </div>
+       `;
+       
+       departments.forEach(dept => {
+         const deptData = meetingData[selectedMeeting.id] ? meetingData[selectedMeeting.id][dept] : null;
+         const status = getDepartmentStatus(deptData);
+         const lastModified = getLastModified(deptData);
+         
+         const statusText = {
+           'completed': '작성완료',
+           'pending': '작성중',
+           'not-started': '미작성'
+         };
+         
+         const statusClass = {
+           'completed': 'status-completed',
+           'pending': 'status-pending',
+           'not-started': 'status-not-started'
+         };
+         
+         const previousLabel = selectedMeeting.type === 'monthly' ? '전월 추진 실적' : '전주 추진 실적';
+         const currentLabel = selectedMeeting.type === 'monthly' ? '금월 추진 계획' : '금주 추진 계획';
+         
+         html += `
+           <div class="department-summary">
+             <div class="department-summary-header">
+               <span>${dept}</span>
+               <span class="department-status ${statusClass[status]}">${statusText[status]}</span>
+             </div>
+             <div class="department-summary-content">
+               <div class="summary-field">
+                 <div class="summary-field-title">${previousLabel}</div>
+                 <div class="summary-field-content ${!deptData?.previousResults ? 'empty' : ''}">
+                   ${deptData?.previousResults || '작성되지 않음'}
+                 </div>
+               </div>
+               <div class="summary-field">
+                 <div class="summary-field-title">${currentLabel}</div>
+                 <div class="summary-field-content ${!deptData?.currentPlan ? 'empty' : ''}">
+                   ${deptData?.currentPlan || '작성되지 않음'}
+                 </div>
+               </div>
+               ${lastModified !== '-' ? `<div style="text-align: right; color: #666; font-size: 0.9rem; margin-top: 15px;">최종 수정: ${lastModified}</div>` : ''}
+             </div>
+           </div>
+         `;
+       });
+       
+
+       
+       summaryContent.innerHTML = html;
+     }
+
+     // 목록으로 돌아가기
+     function backToTable() {
+       const tableContainer = document.querySelector('.table-container');
+       const summaryContainer = document.getElementById('summaryContainer');
+       
+       summaryContainer.style.display = 'none';
+       tableContainer.style.display = 'block';
+     }
+
+     // 취합 데이터 내보내기
+     function exportSummaryData() {
+       if (!selectedMeeting) {
+         alert('회의를 선택해주세요.');
+         return;
+       }
+       
+       // HTML 내용을 텍스트로 변환하여 내보내기
+       const summaryHTML = document.getElementById('summaryContent').innerHTML;
+       const exportData = {
+         meeting: selectedMeeting,
+         generatedAt: new Date().toISOString(),
+         departments: {}
+       };
+       
+       departments.forEach(dept => {
+         const deptData = meetingData[selectedMeeting.id] ? meetingData[selectedMeeting.id][dept] : null;
+         exportData.departments[dept] = deptData;
+       });
+       
+       const dataStr = JSON.stringify(exportData, null, 2);
+       const dataBlob = new Blob([dataStr], {type: 'application/json'});
+       const url = URL.createObjectURL(dataBlob);
+       const link = document.createElement('a');
+       link.href = url;
+       link.download = `${selectedMeeting.name}_취합자료_${new Date().toISOString().split('T')[0]}.json`;
+       link.click();
+       URL.revokeObjectURL(url);
+     }
+
+     // 인쇄하기
+     function printSummaryData() {
+       window.print();
+     }
+
+     // 현재 회의 데이터 삭제
+     function clearCurrentData() {
+       if (!selectedMeeting) {
+         alert('회의를 선택해주세요.');
+         return;
+       }
+       
+       if (!confirm(`${selectedMeeting.name}의 모든 부서 데이터를 삭제하시겠습니까?`)) return;
+       
+       if (meetingData[selectedMeeting.id]) {
+         delete meetingData[selectedMeeting.id];
+         localStorage.setItem('meetingData', JSON.stringify(meetingData));
+       }
+       
+       loadData();
+       updateDashboard();
+       renderTable();
+       
+       alert('현재 회의의 모든 데이터가 삭제되었습니다.');
+     }
+
+     // 현재 데이터 내보내기
+     function exportCurrentData() {
+       if (!selectedMeeting) {
+         alert('회의를 선택해주세요.');
+         return;
+       }
+       
+       if (currentMeetingData.length === 0) {
+         alert('내보낼 데이터가 없습니다.');
+         return;
+       }
+       
+       const csvContent = generateCSV(currentMeetingData);
+       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+       const url = URL.createObjectURL(blob);
+       const link = document.createElement('a');
+       link.href = url;
+       link.download = `${selectedMeeting.name}_현황데이터_${new Date().toISOString().split('T')[0]}.csv`;
+       link.click();
+       URL.revokeObjectURL(url);
+     }
+
+     // 모달 외부 클릭 시 닫기
+    window.onclick = function(event) {
+      const modal = document.getElementById('detailModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+  </script>
+</body>
+</html>

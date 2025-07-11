@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OK저축은행 회의자료 관리 시스템</title>
+  <style>
+    :root {
+      --ok-orange: #E93D1A;
+      --ok-dark-brown: #554744;
+      --ok-yellow: #F4A611;
+      --ok-bright-gray: #C5C5C5;
+      --ok-bg-gray: #F8F8F8;
+      --ok-text-dark: #2D2D2D;
+      --ok-border-light: #E8E8E8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background-color: var(--ok-bg-gray);
+      display: flex;
+      min-height: 100vh;
+      color: var(--ok-text-dark);
+    }
+
+    /* 왼쪽 네비게이션 */
+    .sidebar {
+      width: 300px;
+      background: linear-gradient(180deg, var(--ok-dark-brown) 0%, #3D2F2C 100%);
+      color: white;
+      padding: 25px 20px;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+      overflow-y: auto;
+      max-height: 100vh;
+      position: relative;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    }
+
+    .sidebar h1 {
+      font-size: 1.4rem;
+      margin-bottom: 25px;
+      text-align: center;
+      border-bottom: 2px solid var(--ok-orange);
+      padding-bottom: 15px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .ok-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+
+    .ok-logo-text {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: white;
+      letter-spacing: 1px;
+    }
+
+    .ok-logo-accent {
+      color: var(--ok-orange);
+      font-size: 1.8rem;
+    }
+
+    .nav-section {
+      margin-bottom: 18px;
+    }
+
+    .nav-section h3 {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      color: var(--ok-yellow);
+      cursor: pointer;
+      padding: 8px 10px;
+      border-radius: 6px;
+      transition: all 0.3s;
+      font-weight: 600;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-section h3:hover {
+      background: rgba(244, 166, 17, 0.15);
+      border-left-color: var(--ok-yellow);
+    }
+
+    .nav-item {
+      display: block;
+      padding: 8px 15px;
+      margin: 3px 0;
+      background: rgba(255,255,255,0.08);
+      border-radius: 6px;
+      text-decoration: none;
+      color: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      font-size: 0.9rem;
+      border-left: 3px solid transparent;
+      position: relative;
+    }
+
+    .nav-item:hover {
+      background: rgba(233, 61, 26, 0.2);
+      border-left-color: var(--ok-orange);
+      transform: translateX(3px);
+    }
+
+    .nav-item.active {
+      background: var(--ok-orange);
+      color: white;
+      font-weight: 600;
+      border-left-color: var(--ok-yellow);
+      box-shadow: 0 2px 8px rgba(233, 61, 26, 0.3);
+    }
+
+    .month-meetings {
+      display: none;
+      margin-left: 10px;
+      border-left: 2px solid rgba(255,255,255,0.2);
+      padding-left: 10px;
+    }
+
+    .month-meetings.expanded {
+      display: block;
+    }
+
+    /* 미니 PPT 목록 */
+    .mini-slides {
+      margin-top: 25px;
+      border-top: 2px solid var(--ok-orange);
+      padding-top: 18px;
+    }
+
+    .mini-slide {
+      width: 100%;
+      height: 65px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      text-align: center;
+      transition: all 0.3s;
+      border: 2px solid transparent;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mini-slide::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--ok-yellow);
+      transform: scaleY(0);
+      transition: transform 0.3s;
+    }
+
+    .mini-slide:hover {
+      background: rgba(233, 61, 26, 0.15);
+      border-color: var(--ok-orange);
+      transform: translateX(2px);
+    }
+
+    .mini-slide:hover::before {
+      transform: scaleY(1);
+    }
+
+    .mini-slide.active {
+      background: var(--ok-orange);
+      color: white;
+      border-color: var(--ok-yellow);
+      font-weight: 600;
+      box-shadow: 0 3px 12px rgba(233, 61, 26, 0.4);
+    }
+
+    .mini-slide.active::before {
+      background: var(--ok-yellow);
+      transform: scaleY(1);
+    }
+
+    /* 메인 컨텐츠 */
+    .main-content {
+      flex: 1;
+      padding: 25px;
+      overflow-y: auto;
+      max-height: 100vh;
+      background: var(--ok-bg-gray);
+    }
+
+    /* 홈 페이지 스타일 */
+    .home-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+      text-align: center;
+    }
+
+    .home-header {
+      margin-bottom: 50px;
+    }
+
+    .ok-logo-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .ok-logo-text-main {
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--ok-dark-brown);
+      letter-spacing: 2px;
+    }
+
+    .ok-logo-accent-main {
+      color: var(--ok-orange);
+      font-size: 4.5rem;
+      font-weight: 900;
+    }
+
+    .home-header h1 {
+      font-size: 2.5rem;
+      color: var(--ok-text-dark);
+      margin-bottom: 15px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .home-header p {
+      font-size: 1.2rem;
+      color: var(--ok-dark-brown);
+      font-weight: 500;
+    }
+
+    /* 선택기 컨테이너 */
+    .meeting-selector {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      border: 1px solid var(--ok-border-light);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .selector-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 25px;
+      margin-bottom: 35px;
+    }
+
+    .selector-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .selector-group label {
+      font-weight: 600;
+      color: var(--ok-text-dark);
+      font-size: 1rem;
+      letter-spacing: -0.3px;
+    }
+
+    .custom-select {
+      width: 100%;
+      padding: 15px 20px;
+      border: 2px solid var(--ok-border-light);
+      border-radius: 12px;
+      font-size: 1.1rem;
+      background: #fafafa;
+      color: var(--ok-text-dark);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 15px center;
+      background-repeat: no-repeat;
+      background-size: 16px;
+      padding-right: 50px;
+    }
+
+    .custom-select:focus {
+      outline: none;
+      border-color: var(--ok-orange);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(233, 61, 26, 0.1);
+    }
+
+    .custom-select:hover {
+      border-color: var(--ok-yellow);
+    }
+
+    /* 로그인 입력 필드 */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      margin-bottom: 35px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 15px 20px;
+      border: 2px solid var(--ok-border-light);
+      border-radius: 12px;
+      font-size: 1.1rem;
+      background: #fafafa;
+      color: var(--ok-text-dark);
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .login-input:focus {
+      outline: none;
+      border-color: var(--ok-orange);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(233, 61, 26, 0.1);
+    }
+
+    .login-input:hover {
+      border-color: var(--ok-yellow);
+    }
+
+    .login-input::placeholder {
+      color: #999;
+    }
+
+    /* 액션 버튼들 */
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .btn-confirm {
+      background: linear-gradient(135deg, var(--ok-orange) 0%, #ff6b35 100%);
+      color: white;
+      border: none;
+      padding: 18px 35px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(233, 61, 26, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-confirm:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(233, 61, 26, 0.4);
+    }
+
+    .btn-confirm:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-confirm:disabled {
+      background: var(--ok-bright-gray);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary-home {
+      background: var(--ok-dark-brown);
+      color: white;
+      border: none;
+      padding: 18px 35px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-secondary-home:hover {
+      background: #3d2f2c;
+      transform: translateY(-2px);
+    }
+
+    .meeting-page {
+      min-height: 100vh;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+      padding: 40px;
+      border: 1px solid var(--ok-border-light);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .meeting-page::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 45px;
+      border-bottom: 2px solid var(--ok-border-light);
+      padding-bottom: 25px;
+      position: relative;
+    }
+
+    .page-header::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 2px;
+      background: var(--ok-orange);
+    }
+
+    /* 경고 문구 */
+    .warning-notice {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      border: 2px solid #ffd700;
+      border-radius: 10px;
+      padding: 15px 20px;
+      margin-bottom: 30px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+    }
+
+    .warning-notice .warning-icon {
+      font-size: 1.5rem;
+      color: #856404;
+      margin-right: 10px;
+    }
+
+    .warning-notice .warning-text {
+      color: #856404;
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: -0.3px;
+    }
+
+    .page-header h1 {
+      color: var(--ok-text-dark);
+      font-size: 2.8rem;
+      margin-bottom: 12px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .page-header p {
+      color: var(--ok-dark-brown);
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .departments-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+    }
+
+    .department-card {
+      background: #ffffff;
+      border: 2px solid var(--ok-border-light);
+      border-radius: 12px;
+      padding: 25px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .department-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+
+    .department-card:hover {
+      border-color: var(--ok-orange);
+      box-shadow: 0 8px 25px rgba(233, 61, 26, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .department-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .department-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .department-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--ok-text-dark);
+      letter-spacing: -0.5px;
+    }
+
+    .status-badge {
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .status-completed {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+
+    .status-pending {
+      background: linear-gradient(135deg, var(--ok-orange) 0%, #ff6b35 100%);
+      color: white;
+    }
+
+    .status-badge.status-pending {
+      background: linear-gradient(135deg, var(--ok-bright-gray) 0%, #a8a8a8 100%);
+      color: var(--ok-text-dark);
+    }
+
+    .department-content {
+      margin-top: 15px;
+    }
+
+    .content-field {
+      margin-bottom: 15px;
+    }
+
+    .meeting-section {
+      margin-bottom: 25px;
+      border-left: 4px solid var(--ok-orange);
+      padding-left: 15px;
+    }
+
+    .section-title {
+      color: var(--ok-dark-brown);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--ok-border-light);
+    }
+
+    .content-field input[type="date"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid var(--ok-border-light);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      background: #fafafa;
+    }
+
+    .content-field input[type="date"]:focus {
+      outline: none;
+      border-color: var(--ok-orange);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(233, 61, 26, 0.1);
+    }
+
+    .content-field input[type="date"]:hover {
+      border-color: var(--ok-yellow);
+    }
+
+    .content-field label {
+      display: block;
+      font-weight: 600;
+      color: var(--ok-text-dark);
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      letter-spacing: -0.3px;
+    }
+
+    .content-field textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 15px;
+      border: 2px solid var(--ok-border-light);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      resize: vertical;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      background: #fafafa;
+    }
+
+    .content-field textarea:focus {
+      outline: none;
+      border-color: var(--ok-orange);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(233, 61, 26, 0.1);
+    }
+
+    .content-field textarea:hover {
+      border-color: var(--ok-yellow);
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--ok-orange) 0%, #ff6b35 100%);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(233, 61, 26, 0.2);
+      letter-spacing: 0.5px;
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(233, 61, 26, 0.3);
+    }
+
+    .btn-save:active {
+      transform: translateY(0);
+    }
+
+    /* 부서 목록 */
+    .departments-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 1200px) {
+      .departments-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        max-height: 300px;
+      }
+      
+      .main-content {
+        max-height: none;
+      }
+
+      .departments-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 스크롤 스타일 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  </style>
+</head>
+<body>
+  <!-- 왼쪽 네비게이션 -->
+  <div class="sidebar">
+            <div class="ok-logo">
+          <svg width="140" height="50" viewBox="0 0 140 50" style="height: 40px; width: auto;">
+            <defs>
+              <linearGradient id="bgGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#554744;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#3d3330;stop-opacity:1" />
+              </linearGradient>
+              <linearGradient id="orangeGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#E93D1A;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#d32f0f;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect width="140" height="50" rx="12" fill="url(#bgGradient1)"/>
+            <rect x="0" y="0" width="8" height="50" rx="12" fill="url(#orangeGradient1)"/>
+            <text x="18" y="34" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="#2a2a2a" opacity="0.3">OK</text>
+            <text x="16" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="white">OK</text>
+            <text x="52" y="34" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#2a2a2a" opacity="0.3">!</text>
+            <text x="50" y="32" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#E93D1A">!</text>
+            <text x="70" y="22" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="white">저축은행</text>
+            <text x="70" y="36" font-family="Arial, sans-serif" font-size="9" font-weight="500" fill="#F4A611">SAVINGS BANK</text>
+            <circle cx="125" cy="15" r="4" fill="#E93D1A" opacity="0.8"/>
+            <circle cx="130" cy="25" r="2.5" fill="#F4A611" opacity="0.9"/>
+            <circle cx="120" cy="35" r="2" fill="#E93D1A" opacity="0.6"/>
+          </svg>
+        </div>
+    <h1>저축은행<br>회의자료 관리</h1>
+    
+    <!-- 연도 선택 -->
+    <div class="nav-section">
+      <h3 onclick="toggleYear()">📅 2025년</h3>
+      <div id="monthsList" class="month-meetings expanded">
+        <!-- 8월부터 시작 -->
+
+        <div class="nav-section">
+          <h3 onclick="toggleMonth('month8')">📁 8월</h3>
+          <div id="month8" class="month-meetings">
+            <div class="nav-item" onclick="scrollToMeeting('2025-08-monthly')">8월 월간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-08-week1')">8월 1주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-08-week2')">8월 2주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-08-week3')">8월 3주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-08-week4')">8월 4주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-08-week5')">8월 5주차 주간간담회</div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <h3 onclick="toggleMonth('month9')">📁 9월</h3>
+          <div id="month9" class="month-meetings">
+            <div class="nav-item" onclick="scrollToMeeting('2025-09-monthly')">9월 월간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-09-week1')">9월 1주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-09-week2')">9월 2주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-09-week3')">9월 3주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-09-week4')">9월 4주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-09-week5')">9월 5주차 주간간담회</div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <h3 onclick="toggleMonth('month10')">📁 10월</h3>
+          <div id="month10" class="month-meetings">
+            <div class="nav-item" onclick="scrollToMeeting('2025-10-monthly')">10월 월간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-10-week1')">10월 1주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-10-week2')">10월 2주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-10-week3')">10월 3주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-10-week4')">10월 4주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-10-week5')">10월 5주차 주간간담회</div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <h3 onclick="toggleMonth('month11')">📁 11월</h3>
+          <div id="month11" class="month-meetings">
+            <div class="nav-item" onclick="scrollToMeeting('2025-11-monthly')">11월 월간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-11-week1')">11월 1주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-11-week2')">11월 2주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-11-week3')">11월 3주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-11-week4')">11월 4주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-11-week5')">11월 5주차 주간간담회</div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <h3 onclick="toggleMonth('month12')">📁 12월</h3>
+          <div id="month12" class="month-meetings">
+            <div class="nav-item" onclick="scrollToMeeting('2025-12-monthly')">12월 월간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-12-week1')">12월 1주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-12-week2')">12월 2주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-12-week3')">12월 3주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-12-week4')">12월 4주차 주간간담회</div>
+            <div class="nav-item" onclick="scrollToMeeting('2025-12-week5')">12월 5주차 주간간담회</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 빠른 이동 -->
+    <div class="mini-slides">
+      <h3 style="color: var(--ok-yellow); margin-bottom: 12px; font-weight: 600;">🔗 빠른 이동</h3>
+      <div class="nav-item" onclick="showHomePage()">🏠 홈으로 돌아가기</div>
+      <div class="nav-item" onclick="handleLogout()">🚪 로그아웃</div>
+    </div>
+  </div>
+
+  <!-- 메인 컨텐츠 -->
+  <div class="main-content" id="mainContent">
+    <!-- 로그인 페이지 -->
+    <div id="loginPage" class="home-page">
+      <div class="home-header">
+        <div class="ok-logo-main">
+          <svg width="140" height="50" viewBox="0 0 140 50" style="height: 60px; width: auto;">
+            <defs>
+              <linearGradient id="bgGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#554744;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#3d3330;stop-opacity:1" />
+              </linearGradient>
+              <linearGradient id="orangeGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#E93D1A;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#d32f0f;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect width="140" height="50" rx="12" fill="url(#bgGradient2)"/>
+            <rect x="0" y="0" width="8" height="50" rx="12" fill="url(#orangeGradient2)"/>
+            <text x="18" y="34" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="#2a2a2a" opacity="0.3">OK</text>
+            <text x="16" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="white">OK</text>
+            <text x="52" y="34" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#2a2a2a" opacity="0.3">!</text>
+            <text x="50" y="32" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#E93D1A">!</text>
+            <text x="70" y="22" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="white">저축은행</text>
+            <text x="70" y="36" font-family="Arial, sans-serif" font-size="9" font-weight="500" fill="#F4A611">SAVINGS BANK</text>
+            <circle cx="125" cy="15" r="4" fill="#E93D1A" opacity="0.8"/>
+            <circle cx="130" cy="25" r="2.5" fill="#F4A611" opacity="0.9"/>
+            <circle cx="120" cy="35" r="2" fill="#E93D1A" opacity="0.6"/>
+          </svg>
+        </div>
+        <h1>저축은행 회의자료 관리 시스템</h1>
+        <p>시스템에 접속하려면 로그인해주세요</p>
+      </div>
+      
+      <div class="meeting-selector">
+        <div class="login-form">
+          <div class="selector-group">
+            <label for="loginId">사용자 ID</label>
+            <input type="text" id="loginId" class="login-input" placeholder="ID를 입력하세요">
+          </div>
+          
+          <div class="selector-group">
+            <label for="loginPassword">비밀번호</label>
+            <input type="password" id="loginPassword" class="login-input" placeholder="비밀번호를 입력하세요">
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <button id="loginBtn" class="btn-confirm" onclick="handleLogin()">
+            <span>로그인</span>
+            <i>→</i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메인 홈 페이지 -->
+    <div id="homePage" class="home-page" style="display: none;">
+      <div class="home-header">
+        <div class="ok-logo-main">
+          <svg width="140" height="50" viewBox="0 0 140 50" style="height: 60px; width: auto;">
+            <defs>
+              <linearGradient id="bgGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#554744;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#3d3330;stop-opacity:1" />
+              </linearGradient>
+              <linearGradient id="orangeGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#E93D1A;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#d32f0f;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect width="140" height="50" rx="12" fill="url(#bgGradient3)"/>
+            <rect x="0" y="0" width="8" height="50" rx="12" fill="url(#orangeGradient3)"/>
+            <text x="18" y="34" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="#2a2a2a" opacity="0.3">OK</text>
+            <text x="16" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="white">OK</text>
+            <text x="52" y="34" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#2a2a2a" opacity="0.3">!</text>
+            <text x="50" y="32" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#E93D1A">!</text>
+            <text x="70" y="22" font-family="Arial, sans-serif" font-size="11" font-weight="600" fill="white">저축은행</text>
+            <text x="70" y="36" font-family="Arial, sans-serif" font-size="9" font-weight="500" fill="#F4A611">SAVINGS BANK</text>
+            <circle cx="125" cy="15" r="4" fill="#E93D1A" opacity="0.8"/>
+            <circle cx="130" cy="25" r="2.5" fill="#F4A611" opacity="0.9"/>
+            <circle cx="120" cy="35" r="2" fill="#E93D1A" opacity="0.6"/>
+          </svg>
+        </div>
+        <h1>저축은행 회의자료 관리 시스템</h1>
+        <p>원하시는 회의 일정을 선택해주세요</p>
+      </div>
+      
+      <div class="meeting-selector">
+        <div class="selector-container">
+          <div class="selector-group">
+            <label for="yearSelect">연도</label>
+            <select id="yearSelect" class="custom-select">
+              <option value="">연도 선택</option>
+              <option value="2025">2025년</option>
+            </select>
+          </div>
+          
+          <div class="selector-group">
+            <label for="monthSelect">월</label>
+            <select id="monthSelect" class="custom-select">
+              <option value="">월 선택</option>
+              <option value="08">8월</option>
+              <option value="09">9월</option>
+              <option value="10">10월</option>
+              <option value="11">11월</option>
+              <option value="12">12월</option>
+            </select>
+          </div>
+          
+          <div class="selector-group">
+            <label for="meetingTypeSelect">회의 구분</label>
+            <select id="meetingTypeSelect" class="custom-select">
+              <option value="">회의 구분 선택</option>
+              <option value="monthly">월간간담회</option>
+              <option value="week1">1주차 주간간담회</option>
+              <option value="week2">2주차 주간간담회</option>
+              <option value="week3">3주차 주간간담회</option>
+              <option value="week4">4주차 주간간담회</option>
+              <option value="week5">5주차 주간간담회</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <button id="confirmBtn" class="btn-confirm" onclick="goToMeeting()">
+            <span>회의자료 입력하기</span>
+            <i>→</i>
+          </button>
+          <button id="backToHomeBtn" class="btn-secondary-home" onclick="showHomePage()" style="display: none;">
+            <span>홈으로 돌아가기</span>
+            <i>←</i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 회의 페이지 컨테이너 (처음에는 숨김) -->
+    <div id="meetingPageContainer" style="display: none;">
+      <!-- 동적으로 생성될 개별 회의 페이지 -->
+    </div>
+  </div>
+
+  <script>
+    // 16개 부서 목록
+    const departments = [
+      '영업추진부', '리테일기획부', '모기지사업부', '심사부', 
+      '리스크관리부', '경영관리본부(경영기획부)', '경영관리본부(IT기획부)', '미래디지털부',
+      '소비자금융영업부', '소비자금융기획부', '신용관리부', '마케팅팀',
+      '감사부', '준법지원부', '금융소비자보호부', '정보보안팀'
+    ];
+
+    // 회의 데이터 저장소
+    let meetingData = JSON.parse(localStorage.getItem('meetingData')) || {};
+
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+      // 로그인 상태 확인
+      if (localStorage.getItem('isLoggedIn') === 'true') {
+        showHomePage();
+      } else {
+        showLoginPage();
+      }
+      
+      // 선택 변경 시 확인 버튼 활성화 체크
+      document.getElementById('yearSelect').addEventListener('change', checkFormValid);
+      document.getElementById('monthSelect').addEventListener('change', checkFormValid);
+      document.getElementById('meetingTypeSelect').addEventListener('change', checkFormValid);
+      
+      // 로그인 입력 필드 엔터키 이벤트
+      document.getElementById('loginId').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          document.getElementById('loginPassword').focus();
+        }
+      });
+      
+      document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          handleLogin();
+        }
+      });
+    });
+
+    // 폼 유효성 검사
+    function checkFormValid() {
+      const year = document.getElementById('yearSelect').value;
+      const month = document.getElementById('monthSelect').value;
+      const meetingType = document.getElementById('meetingTypeSelect').value;
+      
+      const confirmBtn = document.getElementById('confirmBtn');
+      if (year && month && meetingType) {
+        confirmBtn.disabled = false;
+      } else {
+        confirmBtn.disabled = true;
+      }
+    }
+
+    // 로그인 페이지 표시
+    function showLoginPage() {
+      document.getElementById('loginPage').style.display = 'flex';
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('meetingPageContainer').style.display = 'none';
+      
+      // 빠른 이동 섹션 숨기기
+      document.querySelector('.mini-slides').style.display = 'none';
+    }
+
+    // 로그인 처리
+    function handleLogin() {
+      const id = document.getElementById('loginId').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      
+      if (!id || !password) {
+        alert('ID와 비밀번호를 모두 입력해주세요.');
+        return;
+      }
+      
+      // 현재는 개발 단계이므로 임시로 모든 로그인 허용
+      // 추후 관리자가 제공하는 코드로 검증 예정
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('loginId', id);
+      
+      alert('로그인되었습니다.');
+      showHomePage();
+    }
+
+    // 로그아웃 처리
+    function handleLogout() {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('loginId');
+      
+      // 입력 필드 초기화
+      document.getElementById('loginId').value = '';
+      document.getElementById('loginPassword').value = '';
+      
+      showLoginPage();
+    }
+
+    // 홈페이지 표시
+    function showHomePage() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('homePage').style.display = 'flex';
+      document.getElementById('meetingPageContainer').style.display = 'none';
+      document.getElementById('backToHomeBtn').style.display = 'none';
+      document.getElementById('confirmBtn').style.display = 'flex';
+      
+      // 빠른 이동 섹션 숨기기
+      document.querySelector('.mini-slides').style.display = 'none';
+    }
+
+    // 회의 페이지로 이동
+    function goToMeeting() {
+      const year = document.getElementById('yearSelect').value;
+      const month = document.getElementById('monthSelect').value;
+      const meetingType = document.getElementById('meetingTypeSelect').value;
+      
+      if (!year || !month || !meetingType) {
+        alert('모든 항목을 선택해주세요.');
+        return;
+      }
+      
+      // 회의 ID 생성
+      let meetingId;
+      if (meetingType === 'monthly') {
+        meetingId = `${year}-${month}-monthly`;
+      } else {
+        const weekNum = meetingType.replace('week', '');
+        meetingId = `${year}-${month}-week${weekNum}`;
+      }
+      
+      // 회의 페이지 생성 및 표시
+      generateSpecificMeetingPage(meetingId, year, month, meetingType);
+      
+      // 페이지 전환
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('meetingPageContainer').style.display = 'block';
+      document.getElementById('backToHomeBtn').style.display = 'flex';
+      document.getElementById('confirmBtn').style.display = 'none';
+      
+      // 빠른 이동 섹션 표시
+      document.querySelector('.mini-slides').style.display = 'block';
+      
+      // 데이터 로드
+      loadMeetingData();
+    }
+
+    // 특정 회의 페이지 생성
+    function generateSpecificMeetingPage(meetingId, year, month, meetingType) {
+      const container = document.getElementById('meetingPageContainer');
+      container.innerHTML = '';
+      
+      // 제목 생성
+      let title, type;
+      if (meetingType === 'monthly') {
+        title = `${year}년 ${parseInt(month)}월 월간간담회`;
+        type = '월간';
+      } else {
+        const weekNum = meetingType.replace('week', '');
+        title = `${year}년 ${parseInt(month)}월 ${weekNum}주차 주간간담회`;
+        type = '주간';
+      }
+      
+      const page = createMeetingPage(meetingId, title, type);
+      container.appendChild(page);
+    }
+
+    // 사이드바의 월별 토글 기능
+    function toggleMonth(monthId) {
+      const monthDiv = document.getElementById(monthId);
+      monthDiv.classList.toggle('expanded');
+    }
+
+    // 년도 토글
+    function toggleYear() {
+      const monthsList = document.getElementById('monthsList');
+      monthsList.classList.toggle('expanded');
+    }
+
+    // 사이드바 네비게이션에서 특정 회의로 이동
+    function scrollToMeeting(meetingId) {
+      // 홈페이지에서 해당 회의로 바로 이동
+      const [year, month, type] = meetingId.split('-');
+      
+      // 드롭다운 값 설정
+      document.getElementById('yearSelect').value = year;
+      document.getElementById('monthSelect').value = month;
+      
+      if (type === 'monthly') {
+        document.getElementById('meetingTypeSelect').value = 'monthly';
+      } else {
+        const weekNum = type.replace('week', '');
+        document.getElementById('meetingTypeSelect').value = `week${weekNum}`;
+      }
+      
+      // 확인 버튼 활성화 체크
+      checkFormValid();
+      
+      // 회의 페이지로 이동
+      goToMeeting();
+    }
+
+    // 기존 전체 페이지 생성 함수는 더 이상 사용하지 않음
+
+    // 개별 회의 페이지 생성
+    function createMeetingPage(meetingId, title, type) {
+      const page = document.createElement('div');
+      page.className = 'meeting-page';
+      page.id = meetingId;
+
+      page.innerHTML = `
+        <div class="page-header">
+          <h1>${title}</h1>
+          <p><strong>OK저축은행</strong> ${type}간담회 - 전 부서 회의자료</p>
+        </div>
+        <div class="warning-notice">
+          <span class="warning-icon">⚠️</span>
+          <span class="warning-text">경고: 본 문서는 OK저축은행의 소유이며, 무단 유출 시 법적 책임을 받게 됩니다.</span>
+        </div>
+        <div class="departments-container">
+          ${departments.map(dept => `
+            <div class="department-card">
+              <div class="department-header">
+                <div class="department-name">${dept}</div>
+                <div class="status-badge status-pending" id="status-${meetingId}-${dept.replace(/[^a-zA-Z0-9]/g, '')}">미작성</div>
+              </div>
+              <div class="department-content">
+                ${type === '월간' ? `
+                  <div class="content-field">
+                    <label>전월 추진 실적</label>
+                    <textarea name="previousResults" placeholder="전월 추진 실적을 입력하세요" onchange="saveDepartmentData('${meetingId}', '${dept}', this.name, this.value)"></textarea>
+                  </div>
+                  <div class="content-field">
+                    <label>금월 추진 계획</label>
+                    <textarea name="currentPlan" placeholder="금월 추진 계획을 입력하세요" onchange="saveDepartmentData('${meetingId}', '${dept}', this.name, this.value)"></textarea>
+                  </div>
+                ` : `
+                  <div class="content-field">
+                    <label>전주 추진 실적</label>
+                    <textarea name="previousResults" placeholder="전주 추진 실적을 입력하세요" onchange="saveDepartmentData('${meetingId}', '${dept}', this.name, this.value)"></textarea>
+                  </div>
+                  <div class="content-field">
+                    <label>금주 추진 계획</label>
+                    <textarea name="currentPlan" placeholder="금주 추진 계획을 입력하세요" onchange="saveDepartmentData('${meetingId}', '${dept}', this.name, this.value)"></textarea>
+                  </div>
+                `}
+                <button class="btn-save" onclick="markAsCompleted('${meetingId}', '${dept}')">작성완료</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      return page;
+    }
+
+    // 미니 슬라이드는 더 이상 필요하지 않음 (단일 페이지만 표시)
+
+    // 부서 데이터 저장
+    function saveDepartmentData(meetingId, department, fieldName, value) {
+      if (!meetingData[meetingId]) meetingData[meetingId] = {};
+      if (!meetingData[meetingId][department]) meetingData[meetingId][department] = {};
+      
+      meetingData[meetingId][department][fieldName] = value;
+      meetingData[meetingId][department].lastModified = new Date().toISOString();
+      localStorage.setItem('meetingData', JSON.stringify(meetingData));
+      
+      // 상태 업데이트
+      updateDepartmentStatus(meetingId, department);
+    }
+
+    // 작성완료 마크
+    function markAsCompleted(meetingId, department) {
+      const deptId = department.replace(/[^a-zA-Z0-9]/g, '');
+      const statusElement = document.getElementById(`status-${meetingId}-${deptId}`);
+      statusElement.textContent = '작성완료';
+      statusElement.className = 'status-badge status-completed';
+      
+      // 로컬 저장소에 완료 상태 저장
+      if (!meetingData[meetingId]) meetingData[meetingId] = {};
+      if (!meetingData[meetingId][department]) meetingData[meetingId][department] = {};
+      meetingData[meetingId][department].completed = true;
+      meetingData[meetingId][department].lastModified = new Date().toISOString();
+      localStorage.setItem('meetingData', JSON.stringify(meetingData));
+      
+      alert(`${department}의 회의자료가 작성완료되었습니다.`);
+    }
+
+    // 부서 상태 업데이트
+    function updateDepartmentStatus(meetingId, department) {
+      const deptId = department.replace(/[^a-zA-Z0-9]/g, '');
+      const statusElement = document.getElementById(`status-${meetingId}-${deptId}`);
+      
+      if (meetingData[meetingId] && meetingData[meetingId][department]) {
+        const data = meetingData[meetingId][department];
+        const hasContent = Object.values(data).some(value => value && value.toString().trim() !== '');
+        
+        if (data.completed) {
+          statusElement.textContent = '작성완료';
+          statusElement.className = 'status-badge status-completed';
+        } else if (hasContent) {
+          statusElement.textContent = '작성중';
+          statusElement.className = 'status-badge status-pending';
+        }
+      }
+    }
+
+    // 저장된 데이터 로드
+    function loadMeetingData() {
+      Object.keys(meetingData).forEach(meetingId => {
+        Object.keys(meetingData[meetingId]).forEach(department => {
+          const data = meetingData[meetingId][department];
+          
+          // 텍스트 영역 및 입력 필드 데이터 복원
+          Object.keys(data).forEach(fieldName => {
+            if (fieldName !== 'completed') {
+              const input = document.querySelector(`#${meetingId} [name="${fieldName}"]`);
+              if (input && input.closest('.department-card').querySelector('.department-name').textContent === department) {
+                input.value = data[fieldName] || '';
+              }
+            }
+          });
+          
+          // 상태 업데이트
+          updateDepartmentStatus(meetingId, department);
+        });
+      });
+    }
+
+    // 스크롤 감지는 더 이상 필요하지 않음 (단일 페이지 모드)
+  </script>
+</body>
+</html>
+
